@@ -4,7 +4,7 @@ title: catfish.personas
 type: code-capability
 tags: [personas]
 summary: "Personas = reusable lenses. Each stamps a perspective-map: a filtered, typed view over the"
-ref_count: 2
+ref_count: 3
 source: src/catfish/personas.py
 status: proposed
 ---
@@ -13,7 +13,7 @@ status: proposed
 
 > Personas = reusable lenses. Each stamps a perspective-map: a filtered, typed view over the
 
-**Capability** · used by 2 module(s) · 0 class(es) · 9 function(s)
+**Capability** · used by 3 module(s) · 0 class(es) · 9 function(s)
 
 ## Business value (proposed — confirm me)
 - (proposed) Personas = reusable lenses. Each stamps a perspective-map: a filtered, typed view over the  _(type: enablement · status: proposed)_
@@ -25,4 +25,4 @@ status: proposed
 [[catfish-models]]
 
 ## Used by
-[[catfish-server]] [[catfish-tournament]]
+[[catfish-mcp_tools]] [[catfish-server]] [[catfish-tournament]]

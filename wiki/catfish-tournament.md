@@ -4,7 +4,7 @@ title: catfish.tournament
 type: code-capability
 tags: [tournament]
 summary: "The tournament engine: generate -> reflect -> rank -> evolve -> meta-review."
-ref_count: 1
+ref_count: 2
 source: src/catfish/tournament.py
 status: proposed
 ---
@@ -13,7 +13,7 @@ status: proposed
 
 > The tournament engine: generate -> reflect -> rank -> evolve -> meta-review.
 
-**Capability** · used by 1 module(s) · 1 class(es) · 12 function(s)
+**Capability** · used by 2 module(s) · 1 class(es) · 12 function(s)
 
 ## Business value (proposed — confirm me)
 - (proposed) The tournament engine: generate -> reflect -> rank -> evolve -> meta-review.  _(type: enablement · status: proposed)_
@@ -31,4 +31,4 @@ status: proposed
 [[catfish-cognition]] [[catfish-llm]] [[catfish-models]] [[catfish-personas]]
 
 ## Used by
-[[catfish-server]]
+[[catfish-mcp_tools]] [[catfish-server]]

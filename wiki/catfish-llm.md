@@ -4,7 +4,7 @@ title: catfish.llm
 type: code-capability
 tags: [llm]
 summary: "Inference layer."
-ref_count: 2
+ref_count: 3
 source: src/catfish/llm.py
 status: proposed
 ---
@@ -13,7 +13,7 @@ status: proposed
 
 > Inference layer.
 
-**Capability** · used by 2 module(s) · 4 class(es) · 2 function(s)
+**Capability** · used by 3 module(s) · 4 class(es) · 2 function(s)
 
 ## Business value (proposed — confirm me)
 - (proposed) Inference layer.  _(type: enablement · status: proposed)_
@@ -28,4 +28,4 @@ status: proposed
 [[catfish-fixtures]]
 
 ## Used by
-[[catfish-server]] [[catfish-tournament]]
+[[catfish-mcp_tools]] [[catfish-server]] [[catfish-tournament]]
