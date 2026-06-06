@@ -1,0 +1,50 @@
+# config/tags.yaml — keyword (lowercased substring) -> tag the persona filters key on.
+#
+# THIS IS THE FIRST SEAM to edit when retargeting Catfish to a new domain (see ADAPTING.md).
+# The tags on the right MUST match the `filter.tags_any` lists in personas/*.yaml — the two
+# files are a matched pair. Change a tag here without updating the persona filters and that
+# persona's lens comes up empty. (The tournament run header prints the active panel + lens
+# count; `catfish ingest <folder> --config-dir <dir>` shows exactly which tags each note got.)
+#
+# This default vocabulary targets software / product / eng decisions. For a worked retarget to
+# a completely different domain, see examples/biotech/ (its own tags.yaml + personas/).
+
+auth: auth
+login: auth
+oauth: auth
+session token: auth
+security: security
+vulnerab: security
+auth-07: security
+finding: security
+migrat: migration
+cutover: migration
+billing: billing
+invoice: billing
+revenue: billing
+launch: launch
+go-live: launch
+deadline: timeline
+" q3": timeline
+" q4": timeline
+sprint: timeline
+schedule: timeline
+capacity: resource
+headcount: resource
+the team: resource
+hire: resource
+depend: dependency
+blocker: dependency
+blocks: dependency
+risk: risk
+pii: pii
+credential: credential
+password: credential
+permission: permission
+access control: permission
+external: external
+third-party: external
+vendor: external
+scope: scope
+constraint: constraint
+assume: assumption

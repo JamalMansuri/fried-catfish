@@ -1,0 +1,24 @@
+# secrets — never commit
+.env
+*.key
+
+# catfish working state (per-project memory + spine + cards)
+.catfish/
+.memory/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# demo intermediate (raw VHS capture; demo/catfish.gif is the published artifact)
+demo/_raw.gif
+
+# os
+.DS_Store

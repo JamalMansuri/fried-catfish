@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "catfish_write_linear",
+        "hooks": [
+          { "type": "command", "command": "python -m catfish.gate" }
+        ]
+      }
+    ]
+  }
+}

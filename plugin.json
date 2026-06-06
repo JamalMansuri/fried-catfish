@@ -1,0 +1,12 @@
+{
+  "name": "catfish",
+  "version": "0.1.0",
+  "description": "Stress-test plans in an AI Co-Scientist-style tournament; decide in one terse card.",
+  "author": "Jamal Mansuri",
+  "license": "MIT",
+  "mcpServers": {
+    "catfish": { "command": "catfish", "args": ["serve"] }
+  },
+  "hooks": "./hooks/hooks.json",
+  "skills": ["./skills/tournament", "./skills/scout", "./skills/retro", "./skills/map"]
+}

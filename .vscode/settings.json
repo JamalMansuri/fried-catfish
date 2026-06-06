@@ -1,0 +1,29 @@
+{
+  "foam.files.ignore": [
+    "**/.catfish/**",
+    "**/.memory/**",
+    "**/__pycache__/**",
+    "**/.pytest_cache/**",
+    "examples/**",
+    "tests/**",
+    "docs/**",
+    "skills/**",
+    "README.md",
+    "SPEC.md",
+    "RESEARCH.md",
+    "AGENTS.md"
+  ],
+  "foam.graph.style": {
+    "background": "#0d1117",
+    "lineColor": "#30363d",
+    "lineWidth": 0.2,
+    "particleWidth": 1.0,
+    "highlightedForeground": "#ffa657",
+    "node": {
+      "note": "#d2a8ff",
+      "moc": "#f778ba",
+      "code-capability": "#79c0ff",
+      "code-entrypoint": "#7ee787"
+    }
+  }
+}

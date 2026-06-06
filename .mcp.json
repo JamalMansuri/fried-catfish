@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "catfish": {
+      "command": "catfish",
+      "args": ["serve"]
+    }
+  }
+}

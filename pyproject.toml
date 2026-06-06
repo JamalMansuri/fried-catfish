@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "catfish"
+version = "0.1.0"
+description = "Stress-test plans in an AI Co-Scientist-style tournament; decide in one terse card."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Jamal Mansuri" }]
+keywords = ["llm", "agents", "decision", "tournament", "mcp", "claude", "codex"]
+
+# Genuinely tiny core. The demo path (CATFISH_DEMO=1) needs NONE of these — it runs on
+# the standard library alone. These are only needed for live ingestion + MCP serving.
+dependencies = [
+  "pyyaml>=6.0",        # persona + card serialization (graceful fallback if absent)
+]
+
+[project.optional-dependencies]
+live    = ["anthropic>=0.40"]        # live LLM path; demo path needs nothing
+mcp     = ["mcp>=1.0"]               # MCP stdio server for Claude Code / Codex
+ingest  = ["markitdown>=0.1"]        # docx/pdf/pptx/xlsx -> markdown (txt/md/eml work without it)
+linear  = ["httpx>=0.27"]            # Linear write-back; core runs fully offline without it
+fast    = ["numpy>=1.26"]            # vectorized BT-MLE; never needed at n<=4 finalists
+code    = ["tree-sitter-languages>=1.10"]  # precise code symbols; core code path is ripgrep+stdlib
+
+[project.scripts]
+catfish = "catfish.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/catfish"]
