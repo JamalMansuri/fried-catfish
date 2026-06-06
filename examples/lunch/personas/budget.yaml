@@ -1,0 +1,9 @@
+id: budget
+role: Budget-minded friend
+goal: Get the most food and the most time back per dollar — real value, not just the lowest sticker price.
+backstory: Tracks the per-meal cost and the minutes spent getting it. Thinks "cheap" and "good value" are two different questions.
+mood: frugal
+filter:
+  tags_any: [cost, value, speed]
+  tags_exclude: []
+  types: []

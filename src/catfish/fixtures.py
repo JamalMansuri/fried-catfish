@@ -1,91 +1,93 @@
-"""Recorded demo fixtures — "Muad'Dib's choice: unleash the jihad?"
+"""Recorded demo fixtures — "Where should we grab lunch today?"
 
-These make `CATFISH_DEMO=1 catfish tournament examples/inbox "..."` produce a real, stable
-decision card with no API key. The tournament control flow runs for real — generation,
-reflection, pairwise ranking, Bradley-Terry — only the model *outputs* are canned. The card
-you see is traceable to examples/inbox/.
+These make `CATFISH_DEMO=1 catfish tournament examples/lunch/inbox "..."` produce a real,
+stable decision card with no API key. The tournament control flow runs for real —
+generation, reflection, pairwise ranking, Bradley-Terry — only the model *outputs* are
+canned. The card you see is traceable to examples/lunch/inbox/.
 
-The point of the scenario: the cold tournament ranks "Unleash the jihad" highest on raw
-strategic merit — and the human gate is where you must decide whether to sign off on sixty-one
-billion dead. Catfish scores the options; you are the judge of record.
+The point of the scenario: four ordinary lunch options, and the cold tournament ranks the
+local taquería highest — fresh, great value, and the one thing not already eaten this week
+(the corpus carries a meal-history note the panel reaps). An everyday call you can trace
+end to end; the human gate is still where you sign off.
 
-Deliberately NOT a tidy total order. "Unleash" beats all three alternatives, and those three
-form a genuine non-transitive cycle among themselves (Restrain ▸ Abdicate ▸ Channel ▸ Restrain):
-win-counting calls them a three-way tie, which is exactly why scoring is Bradley-Terry, not Elo.
-The BT numbers are computed by the engine from these battles — not hand-set here.
+Deliberately NOT a tidy total order. The taquería beats all three chains, and those three
+form a genuine non-transitive cycle among themselves (Chipotle ▸ McDonald's ▸ Taco Bell ▸
+Chipotle): win-counting calls them a three-way tie, which is exactly why scoring is
+Bradley-Terry, not Elo. The BT numbers are computed by the engine from these battles — not
+hand-set here.
 """
 
 # Plan names — also the card option names. First word doubles as the battle-view handle.
-UNLEASH  = "Unleash the jihad"
-RESTRAIN = "Restrain the legions"
-ABDICATE = "Abdicate the throne"
-CHANNEL  = "Channel the fervor"
+TAQUERIA  = "Taquería down the block"
+CHIPOTLE  = "Chipotle"
+MCDONALDS = "McDonald's"
+TACO_BELL = "Taco Bell"
 
-# Four plans the war council "generates". Asymmetric by design.
+# Four plans the table "generates". Asymmetric by design.
 DEMO_CANDIDATES = [
-    {"name": UNLEASH,
-     "text": "Ride the holy war. Loose the Fremen legions in your name, sweep the Great Houses, and take the throne and the whole Imperium."},
-    {"name": RESTRAIN,
-     "text": "Hold the legions back. Rule Arrakis through the spice monopoly and threat alone, and refuse to let the jihad leave the planet."},
-    {"name": ABDICATE,
-     "text": "Refuse the mantle. Walk away from the throne and the prophecy, and deny the holy war the messiah it needs."},
-    {"name": CHANNEL,
-     "text": "Turn the fervor inward — spend the Fremen's faith on Liet-Kynes' dream, greening Arrakis instead of burning the Imperium."},
+    {"name": TAQUERIA,
+     "text": "Walk two blocks to the family taquería — a fresh, made-to-order carne asada burrito, a huge portion, and nothing we've eaten all week."},
+    {"name": CHIPOTLE,
+     "text": "Order the usual chicken bowl — fresh, customizable, filling, and a known quantity if we beat the noon line."},
+    {"name": MCDONALDS,
+     "text": "Hit the drive-thru for a combo — cheapest, fastest, and back at our desks in fifteen minutes flat."},
+    {"name": TACO_BELL,
+     "text": "Grab the five-dollar cravings box — cheap, fast, and more filling than it has any right to be."},
 ]
 
-# Pairwise winner per unordered pair. UNLEASH beats all three; the other three form a perfect
-# non-transitive cycle:  RESTRAIN ▸ ABDICATE,  ABDICATE ▸ CHANNEL,  CHANNEL ▸ RESTRAIN.
-# Raw win counts: UNLEASH=3, others=1 each — a three-way tie win-counting and Elo can't order.
-# Bradley-Terry weighs *who* you beat, ranks UNLEASH clearly on top, the rest equally weak.
+# Pairwise winner per unordered pair. TAQUERIA beats all three; the other three form a perfect
+# non-transitive cycle:  CHIPOTLE ▸ MCDONALDS,  MCDONALDS ▸ TACO_BELL,  TACO_BELL ▸ CHIPOTLE.
+# Raw win counts: TAQUERIA=3, others=1 each — a three-way tie win-counting and Elo can't order.
+# Bradley-Terry weighs *who* you beat, ranks TAQUERIA clearly on top, the rest equally weak.
 PAIRWISE = {
-    frozenset({UNLEASH, RESTRAIN}): UNLEASH,
-    frozenset({UNLEASH, ABDICATE}): UNLEASH,
-    frozenset({UNLEASH, CHANNEL}):  UNLEASH,
-    frozenset({RESTRAIN, ABDICATE}): RESTRAIN,
-    frozenset({ABDICATE, CHANNEL}):  ABDICATE,
-    frozenset({CHANNEL, RESTRAIN}):  CHANNEL,
+    frozenset({TAQUERIA, CHIPOTLE}):  TAQUERIA,
+    frozenset({TAQUERIA, MCDONALDS}): TAQUERIA,
+    frozenset({TAQUERIA, TACO_BELL}): TAQUERIA,
+    frozenset({CHIPOTLE, MCDONALDS}): CHIPOTLE,
+    frozenset({MCDONALDS, TACO_BELL}): MCDONALDS,
+    frozenset({TACO_BELL, CHIPOTLE}): TACO_BELL,
 }
 
 DEMO_META = {
-    "recurring_concerns": ["the jihad spreads from Arrakis whether or not you lead it",
-                           "no plan un-makes the messiah the Fremen already believe in"],
-    "pattern_gaps": ["only unleashing it puts you at the head of the war instead of under it"],
+    "recurring_concerns": ["chain food four of the last five days — variety has real value",
+                           "cheap-and-fast optimizes for price and speed, not for how the food holds you"],
+    "pattern_gaps": ["only the taquería is both fresh and something we haven't just eaten"],
     "bias_flags": [],
-    "next_round_focus": "Weigh total power against sixty-one billion dead — and whether refusing even stops it.",
+    "next_round_focus": "Weigh a couple of dollars and a short walk against fresh food and a break from the rotation.",
 }
 
 DEMO_CARD = {
-    "problem_statement": "The Fremen await one word to loose a holy war across the Imperium in your name. Prescience shows it kills billions. Do you unleash it?",
+    "problem_statement": "Four lunch spots within reach and forty minutes to eat. Where do we go — and does it matter that we keep repeating ourselves?",
     "first_principles": [
-        "The Fremen already believe you are the Mahdi; the fervor exists whether you lead it or not.",
-        "Prescience shows the jihad spreading from Arrakis on every path — the question is whether you steer it.",
-        "Total power and its cost arrive together; one cannot be taken without the other.",
+        "Most of this week was chain food; another repeat spends novelty we won't get back.",
+        "Fast food's real cost is processing and sameness, not the dollar on the receipt.",
+        "A short walk to fresh, made-to-order food beats a drive-thru when the time is close.",
     ],
     "trade_offs": {
-        UNLEASH: {
-            "good": "Total power — the legions sweep every Great House before them.",
-            "neutral": "You become the messiah they already believe you are.",
-            "bad": "Sixty-one billion dead across the Imperium, and it can't be recalled.",
+        TAQUERIA: {
+            "good": "Fresh, unprocessed, biggest portion per dollar — and a real break from the chains.",
+            "neutral": "Cash is easier than card; a five-minute walk each way.",
+            "bad": "A couple dollars more, and no app points.",
         },
-        RESTRAIN: {
-            "good": "Keeps your hands clean of the jihad's blood.",
-            "neutral": "Rules by the spice and the threat, not the sword.",
-            "bad": "Prescience says the fervor breaks the leash and burns anyway.",
+        CHIPOTLE: {
+            "good": "Fresh-ish, customizable, filling — a safe known quantity.",
+            "neutral": "Mid-price; the line gets long right at noon.",
+            "bad": "Third time this week — palate fatigue is real.",
         },
-        ABDICATE: {
-            "good": "Refuses to be the banner a holy war marches under.",
-            "neutral": "Hands Arrakis and the spice to whoever takes them.",
-            "bad": "The legend outlives you; they crown a martyr and march regardless.",
+        MCDONALDS: {
+            "good": "Cheapest and fastest; back at the desk quickest.",
+            "neutral": "Familiar, and the app deals soften the price.",
+            "bad": "Most processed; hungry again within the hour.",
         },
-        CHANNEL: {
-            "good": "Spends the faith on a green Arrakis, not a burning Imperium.",
-            "neutral": "Slow — terraforming is a multi-generation dream.",
-            "bad": "A faith built for conquest may not settle for gardening.",
+        TACO_BELL: {
+            "good": "Most food per dollar; the value box overdelivers.",
+            "neutral": "Drive-thru speed; quality varies by location.",
+            "bad": "Processed, and we already had it Thursday.",
         },
     },
     "recommendation": {
-        "option_name": UNLEASH,
-        "rationale": "Every other path still ends in the jihad — only this one puts you at its head.",
+        "option_name": TAQUERIA,
+        "rationale": "Same money and time as a chain, but fresh, bigger, and the one thing we haven't eaten this week.",
     },
 }
 
@@ -98,36 +100,32 @@ def rank(a_name: str, b_name: str) -> str:
     return "A" if winner == a_name else "B"
 
 
-# Reflection: a DIFFERENT load-bearing flaw per (plan, critic) — five advisors who actually
-# weighed the war, not one template rephrased four times.
+# Reflection: a DIFFERENT load-bearing flaw per (plan, critic) — three friends who each
+# actually weighed lunch, not one template rephrased four times.
 _PLAN_CRITIQUES = {
-    UNLEASH: {
-        "skeptic":  "Assumes you can ride a holy war you've already watched consume sixty billion — no one rides the storm.",
-        "pm":       "Once loosed, the legions answer to the myth, not to you.",
-        "security": "Total exposure: every Great House, the Guild, and the Bene Gesserit unite against the Mahdi.",
-        "qa":       "There is no rollback on a jihad — it cannot be stopped once it starts.",
-        "neutral":  "Wins the throne and loses the question of whether you should.",
+    TAQUERIA: {
+        "nutritionist": "Fresh and unprocessed, but a loaded carne asada burrito is still a big calorie hit — split it or save half.",
+        "budget":       "Nine dollars and cash-only; pricier than the dollar menu, and the ATM nibbles the difference.",
+        "skeptic":      "The only knock is that it's unfamiliar — which is the whole point; don't talk yourself back into the chain.",
+        "neutral":      "Best food, smallest real downside — the case against it is mostly inertia.",
     },
-    RESTRAIN: {
-        "skeptic":  "Assumes faith obeys a leash; the Fremen's does not.",
-        "pm":       "Holding the legions back spends the one force that makes you untouchable.",
-        "security": "A throttled jihad leaves every enemy alive to move against you.",
-        "qa":       "Untested — no one has ever bottled a messiah's war.",
-        "neutral":  "Buys time the prescience says you don't have.",
+    CHIPOTLE: {
+        "nutritionist": "Fresher than the drive-thrus, but the full bowl creeps past a thousand calories fast.",
+        "budget":       "Eleven dollars and a fifteen-minute line — you pay in money and minutes both.",
+        "skeptic":      "Third time this week. 'The usual' is just last week's decision you never re-made.",
+        "neutral":      "Safe and fine, and you'll have forgotten you ate it by tomorrow.",
     },
-    ABDICATE: {
-        "skeptic":  "Walking away doesn't unmake the legend — they'll march for your ghost.",
-        "pm":       "Hands the spice, the throne, and the fervor to someone worse.",
-        "security": "Leaves Arrakis to the Harkonnens' return the moment you step aside.",
-        "qa":       "No test that the jihad needs you alive — martyrs serve it better.",
-        "neutral":  "Clean hands, and the war comes anyway.",
+    MCDONALDS: {
+        "nutritionist": "Most processed on the list; hungry again within the hour and reaching for a snack.",
+        "budget":       "Cheapest sticker price, worst food-per-dollar once you're hungry again at three.",
+        "skeptic":      "Fast and cheap is solving the wrong problem if the food doesn't hold you.",
+        "neutral":      "Quickest in and out; that's the entire argument for it.",
     },
-    CHANNEL: {
-        "skeptic":  "Assumes a faith forged for conquest will settle for terraforming.",
-        "pm":       "Greening Arrakis is generations of work the Imperium won't grant you.",
-        "security": "Turns your back on armed enemies to plant grass.",
-        "qa":       "Untested whether fervor redirects or just reroutes to the nearest war.",
-        "neutral":  "The noblest plan, and the one the desert is least built for.",
+    TACO_BELL: {
+        "nutritionist": "Surprising value, but it's processed and the sodium does the heavy lifting.",
+        "budget":       "Genuinely the most food per dollar — though 'cheap and filling' isn't the same as good.",
+        "skeptic":      "You had it Thursday; twice in a week makes it the default, not a choice.",
+        "neutral":      "Cheap and filling; quality is a coin-flip by location.",
     },
 }
 

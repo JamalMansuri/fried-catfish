@@ -1,0 +1,56 @@
+# examples/lunch/tags.yaml — the domain vocabulary for the "where do we eat lunch?" demo.
+#
+# keyword (lowercased substring) -> tag the personas filter on. The tags on the right
+# (health / cost / value / variety / speed / convenience) are exactly the tags the personas
+# in ./personas/*.yaml filter on — they are a matched pair. Swapping this file + the persona
+# set is the whole "adapt Catfish to your decision" move; no source change. See ../../ADAPTING.md.
+
+# --- health: how processed / how nourishing ---
+fresh: health
+grilled: health
+processed: health
+greasy: health
+nutrition: health
+healthy: health
+veggies: health
+calorie: health
+sodium: health
+
+# --- cost: the money question ---
+cheap: cost
+price: cost
+dollar: cost
+budget: cost
+expensive: cost
+cost: cost
+
+# --- value: food and time back per dollar ---
+value: value
+portion: value
+filling: value
+worth: value
+
+# --- variety: are we just repeating last week? ---
+variety: variety
+again: variety
+same: variety
+twice: variety
+repeat: variety
+different: variety
+rotation: variety
+mixing it up: variety
+
+# --- speed: how fast in and out ---
+fast: speed
+quick: speed
+drive-thru: speed
+line: speed
+minutes: speed
+wait: speed
+
+# --- convenience: how close ---
+close: convenience
+walk: convenience
+nearby: convenience
+block: convenience
+corner: convenience

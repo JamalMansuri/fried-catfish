@@ -7,7 +7,7 @@
 # count; `catfish ingest <folder> --config-dir <dir>` shows exactly which tags each note got.)
 #
 # This default vocabulary targets software / product / eng decisions. For a worked retarget to
-# a completely different domain, see examples/biotech/ (its own tags.yaml + personas/).
+# a completely different domain, see examples/lunch/ (its own tags.yaml + personas/).
 
 auth: auth
 login: auth

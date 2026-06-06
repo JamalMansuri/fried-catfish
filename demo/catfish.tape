@@ -1,6 +1,6 @@
 # demo/catfish.tape — raw terminal capture (charmbracelet/vhs).  make demo  re-renders + post-zooms.
 # Offline & deterministic via CATFISH_DEMO=1 — no API key, canned model outputs, REAL control flow.
-# Paced reveal + color, then the run CLEARS to a focused "THE CALL" panel. The cinematic zoom-in and
+# Paced reveal + color, then the run CLEARS to a focused decision report. The cinematic zoom-in and
 # the long hold are added afterward by demo/zoom.sh (ffmpeg) — VHS itself has no camera move.
 
 Output demo/_raw.gif
@@ -22,24 +22,24 @@ Type "clear"
 Enter
 Show
 
-# Cold open — set the scene.
-Type "# Arrakis. The Fremen await one word from Muad'Dib: jihad."
+# Cold open — an everyday decision, and we've been on autopilot all week.
+Type "# Lunch again. Four spots, forty minutes — and it's been chain food all week."
 Sleep 1000ms
 Enter
 Sleep 1000ms
 
-# The messy context: council reports, a mentat threat tally, the vision, a warning.
-Type "ls examples/inbox/"
+# The messy context: a memo per option + last week's meal history the tournament will reap.
+Type "ls examples/lunch/inbox/"
 Sleep 400ms
 Enter
 Sleep 2000ms
 
-# One impossible question -> a real tournament -> one focused, human-gated call.
-Type 'catfish tournament examples/inbox "Do we unleash the Fremen jihad across the Imperium?" --finalists 4 --decide A --by "Paul Atreides"'
+# One ordinary question -> a real tournament -> one focused, human-gated call.
+Type 'catfish tournament examples/lunch/inbox "Where should we grab lunch today?" --config-dir examples/lunch --finalists 4 --decide A --by "you"'
 Sleep 700ms
 Enter
 
 # Paced reveal (GENERATION -> REFLECTION -> RANKING + cycle -> BRADLEY-TERRY), then it clears and types
 # out the real DECISION REPORT (sources -> grounded reasoning -> machine proposed / human decided ->
-# recorded). Land on the finished report; zoom.sh adds a gentle push-in and the 10s+ hold.
+# recorded). Land on the finished report; zoom.sh adds a gentle push-in and the long hold.
 Sleep 16000ms

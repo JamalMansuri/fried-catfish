@@ -1,27 +1,28 @@
 from pathlib import Path
 
-from catfish.knowledge import ingest
+from catfish.knowledge import ingest, load_tag_vocab
 from catfish.personas import load_personas, stamp_all
 from catfish.llm import FakeLLM
 from catfish.tournament import run_tournament
 from catfish.card import build_card, render
 
-EXAMPLES = Path(__file__).resolve().parents[1] / "examples" / "inbox"
-Q = "Do we unleash the Fremen jihad across the Imperium?"
+LUNCH = Path(__file__).resolve().parents[1] / "examples" / "lunch"
+EXAMPLES = LUNCH / "inbox"
+Q = "Where should we grab lunch today?"
 
 
 def _run():
-    notes = ingest(EXAMPLES)
-    perspectives = stamp_all(load_personas(None), notes)
-    result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=3)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
+    perspectives = stamp_all(load_personas(LUNCH / "personas"), notes)
+    result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=4)
     return result, build_card(Q, result)
 
 
 def test_demo_is_deterministic_and_well_formed():
     result, card = _run()
-    assert len(card.options) == 3
-    # deterministic fixture ranking -> Unleash the jihad wins (beats all three; they cycle)
-    assert card.options[0].name == "Unleash the jihad"
+    assert len(card.options) == 4
+    # deterministic fixture ranking -> the taquería wins (beats all three chains; they cycle)
+    assert card.options[0].name == "Taquería down the block"
     assert card.recommendation.option == card.options[0].id
     assert card.status == "proposed"
     # scores are a normalized distribution over finalists
@@ -31,11 +32,11 @@ def test_demo_is_deterministic_and_well_formed():
 
 
 def test_personas_surface_context():
-    notes = ingest(EXAMPLES)
-    persp = stamp_all(load_personas(None), notes)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
+    persp = stamp_all(load_personas(LUNCH / "personas"), notes)
     by_id = {p.persona_id: p for p in persp}
-    assert by_id["security"].note_ids       # security lens finds the external-powers threat note
-    assert by_id["pm"].note_ids             # pm lens finds the dependency / timeline notes
+    assert by_id["nutritionist"].note_ids   # health lens finds the option memos
+    assert by_id["budget"].note_ids         # cost/value lens finds the price notes
 
 
 def test_render_contains_gate_and_options():
@@ -43,4 +44,4 @@ def test_render_contains_gate_and_options():
     text = render(card)
     assert "DECISION CARD" in text
     assert "HUMAN GATE" in text
-    assert "Unleash the jihad" in text
+    assert "Taquería down the block" in text

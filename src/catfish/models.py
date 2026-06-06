@@ -33,7 +33,7 @@ def _ulid(prefix: str, n: int) -> str:
 class Note:
     id: str
     title: str
-    type: str = "source"           # note|moc|source|concept|persona|code-capability|code-entrypoint
+    type: str = "source"           # note|moc|source|concept|persona|code-capability|code-entrypoint|decision
     tags: list[str] = field(default_factory=list)
     summary: str = ""
     status: str = "seedling"
@@ -46,6 +46,7 @@ class Note:
         return {
             "id": self.id, "title": self.title, "type": self.type,
             "status": self.status, "summary": self.summary, "tags": self.tags,
+            "source_hash": self.source_hash,
         }
 
 

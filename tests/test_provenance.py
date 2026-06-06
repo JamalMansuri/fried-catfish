@@ -6,21 +6,22 @@ attribution — every option shares it, so it lives card-level, not per-option.
 """
 from pathlib import Path
 
-from catfish.knowledge import ingest
+from catfish.knowledge import ingest, load_tag_vocab
 from catfish.personas import load_personas, stamp_all
 from catfish.llm import FakeLLM
 from catfish.tournament import run_tournament
 from catfish.card import build_card, derive_impact, load_capability_index
 from catfish.models import DecisionCard
 
-EXAMPLES = Path(__file__).resolve().parents[1] / "examples" / "inbox"
-Q = "Should we migrate to the new auth service before Q3?"
+LUNCH = Path(__file__).resolve().parents[1] / "examples" / "lunch"
+EXAMPLES = LUNCH / "inbox"
+Q = "Where should we grab lunch today?"
 
 
 def _demo():
-    notes = ingest(EXAMPLES)
-    perspectives = stamp_all(load_personas(None), notes)
-    result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=3)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
+    perspectives = stamp_all(load_personas(LUNCH / "personas"), notes)
+    result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=4)
     expected = sorted({nid for p in perspectives for nid in p.note_ids})
     return perspectives, result, expected
 
@@ -123,7 +124,7 @@ def test_load_capability_index_tolerates_corruption(tmp_path):
 
 
 def test_build_card_demo_stays_knowledge_only():
-    # the AUTH-07 demo has no code-capability ids in its grounding set -> both fields empty/None
+    # the lunch demo has no code-capability ids in its grounding set -> both fields empty/None
     _, result, _ = _demo()
     card = build_card(Q, result, capability_index={"cap.x": {"type": "code-capability", "value": {}}})
     assert card.affected_capabilities == []

@@ -173,10 +173,20 @@ def build_spine(notes: list[Note], catfish_dir: Path) -> Path:
     catfish_dir = Path(catfish_dir)
     notes_dir = catfish_dir / "notes"
     notes_dir.mkdir(parents=True, exist_ok=True)
+    spine = catfish_dir / "_graph_index.jsonl"
+    # UPSERT keyed by source_hash (fallback id for legacy rows): load existing rows, then merge in
+    # this run's notes so re-ingesting an unchanged corpus is idempotent and earlier-added notes
+    # (e.g. a decision Note) survive later ingests. Order-preserving: existing first, new appended.
+    rows: dict[str, dict] = {}
+    if spine.is_file():
+        for line in spine.read_text().splitlines():
+            if line.strip():
+                row = json.loads(line)
+                rows[row.get("source_hash") or row.get("id")] = row
     for note in notes:
         (notes_dir / f"{note.id}.md").write_text(_frontmatter(note) + "\n\n" + note.body)
-    spine = catfish_dir / "_graph_index.jsonl"
+        rows[note.source_hash or note.id] = note.spine_row()
     with spine.open("w") as fh:
-        for note in notes:
-            fh.write(json.dumps(note.spine_row()) + "\n")
+        for row in rows.values():
+            fh.write(json.dumps(row) + "\n")
     return spine

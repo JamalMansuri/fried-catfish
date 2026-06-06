@@ -5,7 +5,8 @@ import pytest
 
 from catfish import mcp_tools
 
-EXAMPLES = str(Path(__file__).resolve().parents[1] / "examples" / "inbox")
+LUNCH = str(Path(__file__).resolve().parents[1] / "examples" / "lunch")
+EXAMPLES = str(Path(__file__).resolve().parents[1] / "examples" / "lunch" / "inbox")
 
 
 def test_mcp_tools_demo_flow(monkeypatch, tmp_path):
@@ -13,8 +14,9 @@ def test_mcp_tools_demo_flow(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)  # .catfish/ writes under tmp
 
     # run tournament -> proposed card, persisted
-    out = json.loads(mcp_tools.tool_run_tournament(EXAMPLES, "Do we unleash the jihad?"))
-    assert out["options"][0]["name"] == "Unleash the jihad"
+    out = json.loads(mcp_tools.tool_run_tournament(
+        EXAMPLES, "Where should we grab lunch today?", finalists=4, config_dir=LUNCH))
+    assert out["options"][0]["name"] == "Taquería down the block"
     assert out["status"] == "proposed"
 
     cards = list((tmp_path / ".catfish" / "cards").glob("*.json"))

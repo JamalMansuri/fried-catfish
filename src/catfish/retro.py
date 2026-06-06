@@ -16,8 +16,9 @@ import json
 import time
 from pathlib import Path
 
+from . import knowledge
 from .card import load_card, save_card
-from .models import DecisionCard
+from .models import DecisionCard, Note
 
 
 def _dir(catfish_dir) -> Path:
@@ -74,6 +75,66 @@ def append_decision(card: DecisionCard, catfish_dir) -> Path:
     return ledger_path(catfish_dir)
 
 
+def decision_to_note(card: DecisionCard, vocab=None) -> Note:
+    """Convert a human-reviewed decision card into a spine Note(type="decision").
+
+    The loop-closure: a decided card becomes durable, reapable wisdom. The body is the full
+    deliberation (problem, chosen option, what the panel/critics warned, outcome+lessons) and is
+    inspectable on disk — but personas read only ``summary`` (stamp() never sees body), so past
+    decisions surface as a COMPRESSED one-liner, never as raw re-citable evidence. That summary-only
+    exposure is the tiered-storage drift guard.
+    """
+    vocab = vocab or knowledge.load_tag_vocab()
+    chosen = _chosen(card)
+    rev = card.review
+
+    lines = [f"Problem: {card.problem_statement}", ""]
+    if chosen:
+        lines += [
+            "Chosen option:",
+            f"  - id: {chosen.id}",
+            f"  - name: {chosen.name}",
+            f"  - solution: {chosen.solution}",
+            f"  - recommendation rationale: {card.recommendation.rationale}",
+        ]
+    if card.concerns:
+        lines += ["", "What the panel worried about:"] + [f"  - {c}" for c in card.concerns]
+    if chosen and chosen.risks:
+        lines += ["", f"What critics warned about {chosen.name}:"] + [f"  - {r}" for r in chosen.risks]
+    if rev.status == "done":
+        lines += ["", "Outcome + lessons:",
+                  f"  - outcome: {rev.outcome or '—'}",
+                  f"  - lessons: {rev.lessons or '—'}"]
+    body = "\n".join(lines)
+
+    chosen_name = chosen.name if chosen else "?"
+    state = rev.outcome if rev.status == "done" and rev.outcome else "pending review"
+    summary = " ".join(f"{card.problem_statement} -> chose {chosen_name}; {state}".split()[:24])
+
+    tags = list(knowledge._tag(body, vocab))
+    if "decision" not in tags:
+        tags.append("decision")
+
+    return Note(
+        id=f"dec-{card.id}",
+        title="Decision: " + card.problem_statement,
+        type="decision",
+        tags=tags,
+        summary=summary,
+        status="decided",
+        source_hash=f"decision:{card.id}",
+        source_type="decision",
+        path="",
+        body=body,
+    )
+
+
+def ingest_decision(card: DecisionCard, catfish_dir, vocab=None) -> Path:
+    """Merge an accepted/reviewed decision into the spine as a reapable Note (upsert by source_hash)."""
+    note = decision_to_note(card, vocab)
+    return knowledge.build_spine([note], Path(catfish_dir))
+
+
 def record_review(card_path, *, outcome="", went_well="", went_wrong="", would_repeat=None,
                   lessons="", by="", catfish_dir=Path(".catfish")) -> DecisionCard:
     """Write a retrospective onto a card's review block and refresh its ledger row."""
@@ -94,6 +155,7 @@ def record_review(card_path, *, outcome="", went_well="", went_wrong="", would_r
     r.status = "done"
     save_card(card, Path(card_path).parent)
     append_decision(card, catfish_dir)
+    ingest_decision(card, catfish_dir)  # close the loop: the reviewed decision joins the spine as reapable wisdom
     return card
 
 

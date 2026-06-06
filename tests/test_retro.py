@@ -1,6 +1,8 @@
-from catfish import retro
+import json
+
+from catfish import personas, retro
 from catfish.card import accept, build_card, load_card, save_card
-from catfish.models import Candidate, Critique, MetaReview
+from catfish.models import Candidate, Critique, MetaReview, Note
 
 
 class _Result:
@@ -65,3 +67,47 @@ def test_render_ledger_and_review():
     assert "RETROSPECTIVE" in text
     assert "not yet reviewed" in text          # pending state surfaced
     assert "rollback path is untested" in text  # warning carried into the retro
+
+
+def _spine_rows(catfish_dir):
+    p = catfish_dir / "_graph_index.jsonl"
+    return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
+
+
+def test_review_closes_the_loop_into_a_reapable_spine_note(tmp_path):
+    # problem_statement carries "risk" -> maps to the DEFAULT_TAG_VOCAB "risk" tag, which the
+    # skeptic persona's filter.tags_any includes (so the decision Note is visible to a REAP lens).
+    # (build_card reads problem_statement from card_inputs, so plant the keyword there.)
+    result = _result()
+    result.card_inputs["problem_statement"] = "accept the risk of shipping early"
+    card = build_card("accept the risk of shipping early", result)
+    accept(card, decided_by="jamal", choice="A")
+    cards_dir = tmp_path / "cards"
+    save_card(card, cards_dir)
+
+    retro.record_review(cards_dir / f"{card.id}.json", outcome="shipped clean",
+                        lessons="protect the buffer week", catfish_dir=tmp_path)
+
+    # 1) the reviewed decision is now in the spine as a type=="decision" row
+    rows = _spine_rows(tmp_path)
+    dec = [r for r in rows if r["type"] == "decision"]
+    assert len(dec) == 1
+    assert dec[0]["id"] == f"dec-{card.id}"
+    assert "risk" in dec[0]["tags"]            # domain tag planted -> reapable
+    assert "decision" in dec[0]["tags"]        # extra tag for a future past-decisions lens
+
+    # 2) REAP visibility: reconstruct the Note from its spine row and stamp a matching persona.
+    row = dec[0]
+    note = Note(id=row["id"], title=row["title"], type=row["type"],
+                tags=row["tags"], summary=row["summary"])
+    skeptic = next(p for p in personas.DEFAULT_PERSONAS if p.id == "skeptic")
+    artifact = personas.stamp(skeptic, [note])
+    assert note.id in artifact.note_ids       # a past decision reaped through a persona lens
+
+    # 3) NO DUPLICATE on re-review (source_hash upsert updates in place)
+    retro.record_review(cards_dir / f"{card.id}.json", outcome="held up over a quarter",
+                        catfish_dir=tmp_path)
+    rows = _spine_rows(tmp_path)
+    dec = [r for r in rows if r["type"] == "decision"]
+    assert len(dec) == 1                       # still exactly one decision row
+    assert "held up over a quarter" in dec[0]["summary"]  # summary reflects the update

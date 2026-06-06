@@ -17,11 +17,11 @@ Catfish runs a plan tournament over ingested context and produces one terse deci
 Catfish is domain-agnostic; ALL domain coupling lives in config, never in `src/`:
 1. `config/tags.yaml` — keyword→tag vocabulary (default: software/eng). **Edit first.**
 2. `personas/*.yaml` — the critic panel; each `filter.tags_any` MUST match tags from `config/tags.yaml`.
-3. `examples/<domain>/` — drop in the user's sources; `examples/biotech/` is a complete retarget to copy.
+3. `examples/<domain>/` — drop in the user's sources; `examples/lunch/` is a complete example to copy.
 4. `cognition/*.md` — the loop's stage identities; domain-agnostic, rarely edited.
 
 Run a retarget without copying files into the repo: pass `--config-dir <folder>` (a folder holding
-`tags.yaml` + `personas/`) to `catfish ingest` / `catfish tournament`. See `examples/biotech/`.
+`tags.yaml` + `personas/`) to `catfish ingest` / `catfish tournament`. See `examples/lunch/`.
 
 **If you reach for `src/` to change the domain, you've missed a seam — stop and use the config above.**
 
