@@ -265,6 +265,16 @@ The loop is closed; these sharpen it.
 - **A real reap-ask `query_spine()` engine (optional).** Today reap-ask is the host-orchestrated `scout` skill. If host orchestration proves insufficient at scale, a flat-first `query_spine(question, spine_path, llm) -> list[{id, score}]` makes one ranking call over the flat spine — no hierarchy required.
 - **Hierarchical PageIndex spine + optional TOON encoding.** The flat JSONL spine is right under a few hundred notes. Past that, a hierarchical PageIndex tree (and a TOON projection of the spine for ~40–60% token savings) lets a tournament traverse the corpus tree-first instead of loading every summary. ROI-positive only above ~500 notes — deliberately deferred.
 
+## Why I built this
+
+Someone showed me the AI Co-Scientist paper and my first reaction was, bro, this is a lot of what I already do. Personas arguing with each other, multiple rounds. I'd been building Maps of Content through different lenses for a while, for all sorts of things — a Map of Content works for basically anything.
+
+What the paper named for me was the part I hadn't: the tournament. Pairwise comparison, a ranker, a reflection agent that tightens each round. Very cool to see it written down. But it's a biomedical research system, and there was no GitHub link — nothing you could actually pick up and run. So I figured: build it, ship it, and point it at the everyday product and technical calls the rest of us make.
+
+It also pulls together threads that are already in the air. The Map of Content idea lines up with the "LLM wiki" Karpathy's been talking about; the retrieval side rhymes with PageIndex, GraphRAG, and reasoning-RAG. To me that's the real signal: the harness — how you actually wire the model up — is becoming as important as the frontier model itself. Right now it can look like we're just throwing more compute at it until the behavior emerges. Maybe. But it works.
+
+Here you go. Hope you enjoy.
+
 ## License
 
 MIT. AGPL/GPL extractors (Firecrawl, Slackdump) are optional, self-hosted, and never imported by core, so the core stays clean-license.
