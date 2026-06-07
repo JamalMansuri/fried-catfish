@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from . import mermaid_theme
+
 # ordered loop stages + the canonical flow edges (used for the MoC graph)
 STAGES = ["generation", "reflection", "ranking", "evolution", "meta-review", "supervisor"]
 
@@ -63,8 +65,8 @@ def render_moc(cog_dir: Path | str = "cognition") -> Path:
     """Distill the cognitive architecture into its own MoC with a flow graph + identity links."""
     cog_dir = Path(cog_dir)
     cog_dir.mkdir(parents=True, exist_ok=True)
-    mermaid = [
-        "```mermaid", "graph TD",
+    body = [
+        "graph TD",
         "  MoC([Map of Content]) --> G[Generation]",
         "  Personas([Persona panel · moods]) --> R",
         "  G --> R[Reflection]",
@@ -76,8 +78,15 @@ def render_moc(cog_dir: Path | str = "cognition") -> Path:
         "  S --> C[Decision Card]",
         "  C --> H{Human Gate}",
         "  H -->|approved| L[Linear tree]",
-        "```",
     ]
+    classes = [
+        "  class MoC,Personas io",
+        "  class G,R,K,E,M,S engine",
+        "  class C accent",
+        "  class H gate",
+        "  class L good",
+    ]
+    mermaid = [mermaid_theme.block(body, classes)]
     out = ["---", "id: cognition", "title: Catfish — Cognitive Architecture", "type: moc", "---", "",
            "# Catfish — Cognitive Architecture", "",
            "The generate→debate→evolve decision loop, distilled. Each stage has an **immutable "

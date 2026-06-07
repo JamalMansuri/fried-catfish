@@ -11,6 +11,7 @@ The generate→debate→evolve decision loop, distilled. Each stage has an **imm
 ## Loop
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", "fontSize": "14px", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#475569", "lineColor": "#64748b", "secondaryColor": "#334155", "tertiaryColor": "#0f172a", "edgeLabelBackground": "#0f172a"}, "flowchart": {"curve": "basis", "nodeSpacing": 45, "rankSpacing": 60, "padding": 8}}}%%
 graph TD
   MoC([Map of Content]) --> G[Generation]
   Personas([Persona panel · moods]) --> R
@@ -23,6 +24,16 @@ graph TD
   S --> C[Decision Card]
   C --> H{Human Gate}
   H -->|approved| L[Linear tree]
+classDef engine fill:#155e75,stroke:#22d3ee,stroke-width:1.5px,color:#ecfeff;
+classDef io fill:#334155,stroke:#64748b,stroke-width:1px,color:#e2e8f0;
+classDef accent fill:#b45309,stroke:#fbbf24,stroke-width:1.5px,color:#fffbeb;
+classDef gate fill:#7f1d1d,stroke:#fbbf24,stroke-width:2px,color:#fff7ed;
+classDef good fill:#166534,stroke:#4ade80,stroke-width:1.5px,color:#f0fdf4;
+  class MoC,Personas io
+  class G,R,K,E,M,S engine
+  class C accent
+  class H gate
+  class L good
 ```
 
 ## Stage identities

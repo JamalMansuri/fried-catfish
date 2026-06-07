@@ -15,6 +15,8 @@ import ast
 import json
 from pathlib import Path
 
+from . import mermaid_theme
+
 # heuristic value_type by capability name (a proposal, human-confirmable)
 _VALUE_TYPE = [
     (("gate", "security", "secret"), "risk"),
@@ -171,15 +173,21 @@ def _note(node: dict) -> str:
 
 
 def _mermaid(modules: dict) -> str:
-    lines = ["```mermaid", "graph LR"]
+    body = ["graph LR"]
     for m in modules.values():
         short = m["name"].split(".")[-1]
-        lines.append(f"  {m['id']}([{short}])")
+        body.append(f"  {m['id']}([{short}])")
     for m in modules.values():
         for d in m["depends_on"]:
-            lines.append(f"  {m['id']} --> {d.replace('.', '-')}")
-    lines.append("```")
-    return "\n".join(lines)
+            body.append(f"  {m['id']} --> {d.replace('.', '-')}")
+    entries = [m["id"] for m in modules.values() if m["type"] == "code-entrypoint"]
+    caps = [m["id"] for m in modules.values() if m["type"] != "code-entrypoint"]
+    classes = []
+    if entries:
+        classes.append("  class " + ",".join(entries) + " accent")   # entrypoints highlighted
+    if caps:
+        classes.append("  class " + ",".join(caps) + " io")
+    return mermaid_theme.block(body, classes)
 
 
 def _index(modules: dict) -> str:
@@ -214,19 +222,26 @@ def _business(modules: dict) -> str:
     order = ["revenue", "retention", "risk", "compliance", "cost", "enablement"]
     types = [t for t in order if t in buckets] + [t for t in buckets if t not in order]
 
-    mer = ["```mermaid", "graph LR", "  user([Stakeholder / PM])"]
+    body = ["graph LR", "  user([Stakeholder / PM])"]
+    module_ids: list[str] = []
     for t in types:
-        mer.append(f"  {t}[[{t.title()}]]")
-        mer.append(f"  user --> {t}")
+        body.append(f"  {t}[[{t.title()}]]")
+        body.append(f"  user --> {t}")
         for m in sorted(buckets[t], key=lambda x: -x["ref_count"]):
-            mer.append(f"  {t} --> {m['id']}({m['name'].split('.')[-1]})")
-    mer.append("```")
+            body.append(f"  {t} --> {m['id']}({m['name'].split('.')[-1]})")
+            module_ids.append(m["id"])
+    classes = ["  class user accent"]
+    if types:
+        classes.append("  class " + ",".join(types) + " engine")          # value buckets
+    if module_ids:
+        classes.append("  class " + ",".join(dict.fromkeys(module_ids)) + " io")
+    mer = mermaid_theme.block(body, classes)
 
     out = ["---", "id: business", "title: Catfish — Business Capability Map", "type: moc", "---", "",
            "# Catfish — Business Capability Map", "",
            "PM-facing view: what each capability is *for*, grouped by the kind of value it protects. "
            "Pairs with the engineer view in [[index]]. **Business-value lines are proposals — confirm them.**",
-           "", "## Value flow", "", "\n".join(mer), "", "## Capabilities by value"]
+           "", "## Value flow", "", mer, "", "## Capabilities by value"]
     for t in types:
         out.append(f"\n### {t.title()}")
         for m in sorted(buckets[t], key=lambda x: -x["ref_count"]):

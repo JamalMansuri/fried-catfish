@@ -21,5 +21,8 @@ status: proposed
 ## Functions
 `_strip_frontmatter`, `load_cognition`, `_one_line`, `render_moc`
 
+## Depends on
+[[catfish-mermaid_theme]]
+
 ## Used by
 [[catfish-server]] [[catfish-tournament]]

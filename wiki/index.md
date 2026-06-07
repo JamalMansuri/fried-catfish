@@ -13,6 +13,7 @@ A **logic map** of the repo, organized by capability (what the code does), not f
 ## Dependency graph
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", "fontSize": "14px", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#475569", "lineColor": "#64748b", "secondaryColor": "#334155", "tertiaryColor": "#0f172a", "edgeLabelBackground": "#0f172a"}, "flowchart": {"curve": "basis", "nodeSpacing": 45, "rankSpacing": 60, "padding": 8}}}%%
 graph LR
   catfish([catfish])
   catfish-__main__([__main__])
@@ -27,6 +28,7 @@ graph LR
   catfish-mcp_server([mcp_server])
   catfish-mcp_tools([mcp_tools])
   catfish-memory([memory])
+  catfish-mermaid_theme([mermaid_theme])
   catfish-models([models])
   catfish-personas([personas])
   catfish-retro([retro])
@@ -35,6 +37,8 @@ graph LR
   catfish-tournament_view([tournament_view])
   catfish-__main__ --> catfish-server
   catfish-card --> catfish-models
+  catfish-codemap --> catfish-mermaid_theme
+  catfish-cognition --> catfish-mermaid_theme
   catfish-knowledge --> catfish-models
   catfish-linear --> catfish-card
   catfish-linear --> catfish-models
@@ -67,6 +71,13 @@ graph LR
   catfish-tournament --> catfish-llm
   catfish-tournament --> catfish-models
   catfish-tournament --> catfish-personas
+classDef engine fill:#155e75,stroke:#22d3ee,stroke-width:1.5px,color:#ecfeff;
+classDef io fill:#334155,stroke:#64748b,stroke-width:1px,color:#e2e8f0;
+classDef accent fill:#b45309,stroke:#fbbf24,stroke-width:1.5px,color:#fffbeb;
+classDef gate fill:#7f1d1d,stroke:#fbbf24,stroke-width:2px,color:#fff7ed;
+classDef good fill:#166534,stroke:#4ade80,stroke-width:1.5px,color:#f0fdf4;
+  class catfish-gate accent
+  class catfish,catfish-__main__,catfish-card,catfish-codemap,catfish-cognition,catfish-fixtures,catfish-knowledge,catfish-linear,catfish-llm,catfish-mcp_server,catfish-mcp_tools,catfish-memory,catfish-mermaid_theme,catfish-models,catfish-personas,catfish-retro,catfish-server,catfish-tournament,catfish-tournament_view io
 ```
 
 ## Capabilities (by load-bearing rank)
@@ -78,6 +89,7 @@ graph LR
 - [[catfish-personas]] — Personas = reusable lenses. Each stamps a perspective-map: a filtered, typed view over the _(used by 3)_
 - [[catfish-cognition]] — The cognitive architecture, as plain markdown. _(used by 2)_
 - [[catfish-linear]] — Gated Linear write-back: parent issue -> story children -> sub-issues, by recursive parentId. _(used by 2)_
+- [[catfish-mermaid_theme]] — Shared mermaid theming for the generated diagrams (codemap wiki + cognition MoC). _(used by 2)_
 - [[catfish-retro]] — Decision ledger + retrospective capture. _(used by 2)_
 - [[catfish-tournament]] — The tournament engine: generate -> reflect -> rank -> evolve -> meta-review. _(used by 2)_
 - [[catfish-codemap]] — Logic-based Map of Content for a codebase, emitted as a Foam-compatible wiki. _(used by 1)_

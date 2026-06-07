@@ -21,5 +21,8 @@ status: proposed
 ## Functions
 `_module_name`, `_resolve_relative`, `_imports`, `_value`, `scan_python`, `_frontmatter`, `_note`, `_mermaid`, `_index`, `_business`, `render_foam`
 
+## Depends on
+[[catfish-mermaid_theme]]
+
 ## Used by
 [[catfish-server]]
