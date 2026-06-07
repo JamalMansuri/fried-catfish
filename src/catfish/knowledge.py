@@ -60,6 +60,27 @@ def _eml_to_text(raw: bytes) -> tuple[str, str]:
     return subject, f"From: {frm}\nSubject: {subject}\n\n{body}".strip()
 
 
+def _split_frontmatter(text: str) -> tuple[str | None, str]:
+    """If the text opens with a YAML frontmatter block (``---`` … ``---``), return its ``title:``
+    value (if present) and the body after the block; otherwise ``(None, text)``.
+
+    The Foam wiki and cognition pages Catfish generates carry frontmatter, so title/summary
+    extraction has to look past the opening ``---`` fence instead of grabbing it as the title.
+    """
+    if not text.startswith("---"):
+        return None, text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return None, text
+    block, body = text[3:end], text[end + 4:].lstrip("\n")
+    title = None
+    for line in block.splitlines():
+        if line.strip().lower().startswith("title:"):
+            title = line.split(":", 1)[1].strip().strip("\"'") or None
+            break
+    return title, body
+
+
 def _extract(path: Path) -> tuple[str, str, str]:
     """Return (source_type, title, body)."""
     ext = path.suffix.lower()
@@ -69,15 +90,17 @@ def _extract(path: Path) -> tuple[str, str, str]:
         return "eml", (subject or path.stem), body
     if ext in SUPPORTED_CORE:
         text = raw.decode("utf-8", errors="replace").lstrip("﻿")
-        title = path.stem
-        for line in text.splitlines():
-            if line.startswith("#"):
-                title = line.lstrip("# ").strip()
-                break
-            if line.strip():
-                title = line.strip()
-                break
-        return ext.lstrip("."), title, text
+        meta_title, body = _split_frontmatter(text)   # skip YAML frontmatter if present
+        title = meta_title or path.stem
+        if not meta_title:
+            for line in body.splitlines():
+                if line.startswith("#"):
+                    title = line.lstrip("# ").strip()
+                    break
+                if line.strip():
+                    title = line.strip()
+                    break
+        return ext.lstrip("."), title, body
     if ext in SUPPORTED_MARKITDOWN:
         try:
             from markitdown import MarkItDown  # optional [ingest] extra
@@ -134,8 +157,11 @@ def ingest(source: Path, vocab: dict[str, str] | None = None) -> list[Note]:
         paths = [source]
     else:
         for p in sorted(source.rglob("*")):
+            # Skip anything under a dot-dir (.catfish, .memory, .pytest_cache, .git, …) or a
+            # dotfile. Checked relative to source, so a dot in the source's own path (e.g. a
+            # repo living under ~/.config) doesn't wrongly exclude everything.
             if p.is_file() and p.suffix.lower() in (SUPPORTED_CORE | SUPPORTED_MARKITDOWN) \
-                    and ".catfish" not in p.parts and not p.name.startswith("."):
+                    and not any(part.startswith(".") for part in p.relative_to(source).parts):
                 paths.append(p)
 
     notes: list[Note] = []
