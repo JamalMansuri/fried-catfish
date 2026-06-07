@@ -35,3 +35,12 @@ Run a retarget without copying files into the repo: pass `--config-dir <folder>`
 ## Honest limit to surface to users
 Catfish outputs stress-tested *options*, not verified *answers*. Bradley-Terry rank = relative
 persuasiveness among LLM judges, not truth. The human is the validator.
+
+## Developing this repo (changing catfish itself)
+- `make test` — full suite, offline (`CATFISH_DEMO=1 PYTHONPATH=src python3 -m pytest -q`). Keep it green.
+- Run the demo offline: `CATFISH_DEMO=1 PYTHONPATH=src python3 -m catfish tournament examples/lunch/inbox "<q>" --config-dir examples/lunch --finalists 4`
+- `make demo` — re-record the README GIF (needs `vhs` + `ffmpeg`).
+- `catfish map src` — regenerate the self-wiki in `wiki/` after changing `src/`.
+- The sole example is `examples/lunch/` (an everyday "where should we grab lunch?" decision). Do **not** reintroduce the retired Dune or biotech examples.
+- The offline demo is canned in `src/catfish/fixtures.py`. If you change option names, scores, or trade-off text there, update the two mirrors so they stay byte-identical: the card in `README.md` ("What it prints") and `SPEC.md` ("Rendered card").
+- Keep it lean — minimal sufficient change over gold-plating.
