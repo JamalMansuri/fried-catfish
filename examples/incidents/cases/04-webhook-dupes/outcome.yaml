@@ -1,0 +1,20 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run. Never ingested.
+correct_option: restore_idempotency
+trap_option: rate_limit_provider
+
+options:
+  restore_idempotency:
+    keywords: ["idempotency", "idempotent", "no-op", "dedup the event", "restore the idempotency"]
+  rate_limit_provider:
+    keywords: ["rate-limit", "rate limit", "ask them to back off", "back off", "their ips"]
+  refund_job:
+    keywords: ["reconciliation", "refund", "nightly job", "auto-refund"]
+  speed_endpoint:
+    keywords: ["speed up", "ack first", "process async", "faster handler"]
+
+what_happened: >
+  A refactor removed the idempotency-key guard, so the provider's normal (documented) retries began
+  double-applying charges. Restoring the guard made repeat deliveries no-ops again.
+why_baseline_misses: >
+  The logs showed duplicate deliveries from the provider, so the reflex was to blame the third
+  party. The provider was behaving exactly as designed; the dedup we removed was the real cause.

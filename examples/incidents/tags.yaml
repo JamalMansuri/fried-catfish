@@ -1,0 +1,77 @@
+# examples/incidents/tags.yaml — the domain vocabulary for the on-call backtest.
+#
+# keyword (lowercased substring) -> tag the personas filter on. The tags on the right
+# (symptom / change / timeline / external / blast_radius / reversibility / evidence) are exactly
+# the tags the personas in ./personas/*.yaml filter on — they are a matched pair. Swapping this
+# file + the persona set is the whole "adapt Catfish to your decision" move; no source change.
+# See ../../ADAPTING.md.
+
+# --- symptom: the loud surface signals on the dashboard (the knee-jerk's bait) ---
+latency: symptom
+slow: symptom
+p99: symptom
+spike: symptom
+error: symptom
+"500": symptom
+timeout: symptom
+crash: symptom
+oom: symptom
+memory: symptom
+cpu: symptom
+stale: symptom
+duplicate: symptom
+alert: symptom
+
+# --- change: what shipped / what moved (the first thing a careful read checks) ---
+deploy: change
+release: change
+rollout: change
+config: change
+refactor: change
+feature flag: change
+commit: change
+
+# --- timeline: the timing evidence — when did it actually start? ---
+timeline: timeline
+started: timeline
+minutes: timeline
+since: timeline
+began: timeline
+coincid: timeline
+window: timeline
+watermark: timeline
+
+# --- external: the blame-outward signal (it's the vendor's fault... is it?) ---
+provider: external
+vendor: external
+upstream: external
+downstream: external
+third-party: external
+gateway: external
+
+# --- blast_radius: who and what is affected ---
+customers: blast_radius
+users: blast_radius
+revenue: blast_radius
+charge: blast_radius
+affected: blast_radius
+requests: blast_radius
+
+# --- reversibility: can we safely undo it? ---
+roll back: reversibility
+rollback: reversibility
+revert: reversibility
+restore: reversibility
+reversible: reversibility
+
+# --- evidence: logs, traces, the underlying mechanism ---
+log: evidence
+trace: evidence
+query: evidence
+profile: evidence
+heap: evidence
+pool: evidence
+index: evidence
+cache: evidence
+idempot: evidence
+clock: evidence

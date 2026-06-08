@@ -13,14 +13,15 @@ from catfish.tournament import run_tournament
 from catfish.card import build_card, derive_impact, load_capability_index
 from catfish.models import DecisionCard
 
-LUNCH = Path(__file__).resolve().parents[1] / "examples" / "lunch"
-EXAMPLES = LUNCH / "inbox"
-Q = "Where should we grab lunch today?"
+INCIDENTS = Path(__file__).resolve().parents[1] / "examples" / "incidents"
+CASE = INCIDENTS / "cases" / "01-checkout-latency"
+EXAMPLES = CASE / "inbox"
+Q = (CASE / "question.txt").read_text().strip()
 
 
 def _demo():
-    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
-    perspectives = stamp_all(load_personas(LUNCH / "personas"), notes)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(INCIDENTS))
+    perspectives = stamp_all(load_personas(INCIDENTS / "personas"), notes)
     result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=4)
     expected = sorted({nid for p in perspectives for nid in p.note_ids})
     return perspectives, result, expected
@@ -124,7 +125,7 @@ def test_load_capability_index_tolerates_corruption(tmp_path):
 
 
 def test_build_card_demo_stays_knowledge_only():
-    # the lunch demo has no code-capability ids in its grounding set -> both fields empty/None
+    # the incident demo has no code-capability ids in its grounding set -> both fields empty/None
     _, result, _ = _demo()
     card = build_card(Q, result, capability_index={"cap.x": {"type": "code-capability", "value": {}}})
     assert card.affected_capabilities == []

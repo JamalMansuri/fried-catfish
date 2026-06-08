@@ -1,0 +1,21 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run. Never ingested.
+correct_option: revert_config
+trap_option: vendor_ticket
+
+options:
+  revert_config:
+    keywords: ["revert the", "connection pool", "pool max", "back to 50", "pool size", "pool config"]
+  vendor_ticket:
+    keywords: ["provider ticket", "payments provider", "escalate", "harden the gateway", "retries"]
+  scale_app:
+    keywords: ["app servers", "app instances", "more instances"]
+  increase_timeout:
+    keywords: ["client timeout", "raise the", "increase the timeout"]
+
+what_happened: >
+  A config change cut the DB connection pool from 50 to 5; under load, requests starved waiting for
+  a connection and timed out on the slowest downstream hop. Reverting the pool size cleared the 500s
+  immediately. The payments provider was never at fault.
+why_baseline_misses: >
+  The loudest log line named the payments gateway, so the reflex was to blame the vendor. The 504
+  was just where local connection starvation happened to surface.

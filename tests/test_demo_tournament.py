@@ -6,14 +6,15 @@ from catfish.llm import FakeLLM
 from catfish.tournament import run_tournament
 from catfish.card import build_card, render
 
-LUNCH = Path(__file__).resolve().parents[1] / "examples" / "lunch"
-EXAMPLES = LUNCH / "inbox"
-Q = "Where should we grab lunch today?"
+INCIDENTS = Path(__file__).resolve().parents[1] / "examples" / "incidents"
+CASE = INCIDENTS / "cases" / "01-checkout-latency"
+EXAMPLES = CASE / "inbox"
+Q = (CASE / "question.txt").read_text().strip()
 
 
 def _run():
-    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
-    perspectives = stamp_all(load_personas(LUNCH / "personas"), notes)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(INCIDENTS))
+    perspectives = stamp_all(load_personas(INCIDENTS / "personas"), notes)
     result = run_tournament(Q, perspectives, FakeLLM(), max_rounds=2, finalist_count=4)
     return result, build_card(Q, result)
 
@@ -21,8 +22,8 @@ def _run():
 def test_demo_is_deterministic_and_well_formed():
     result, card = _run()
     assert len(card.options) == 4
-    # deterministic fixture ranking -> the taquería wins (beats all three chains; they cycle)
-    assert card.options[0].name == "Taquería down the block"
+    # deterministic fixture ranking -> the rollback wins (beats all three reflex fixes; they cycle)
+    assert card.options[0].name == "Roll back deploy 4821"
     assert card.recommendation.option == card.options[0].id
     assert card.status == "proposed"
     # scores are a normalized distribution over finalists
@@ -32,11 +33,11 @@ def test_demo_is_deterministic_and_well_formed():
 
 
 def test_personas_surface_context():
-    notes = ingest(EXAMPLES, vocab=load_tag_vocab(LUNCH))
-    persp = stamp_all(load_personas(LUNCH / "personas"), notes)
+    notes = ingest(EXAMPLES, vocab=load_tag_vocab(INCIDENTS))
+    persp = stamp_all(load_personas(INCIDENTS / "personas"), notes)
     by_id = {p.persona_id: p for p in persp}
-    assert by_id["nutritionist"].note_ids   # health lens finds the option memos
-    assert by_id["budget"].note_ids         # cost/value lens finds the price notes
+    assert by_id["sre"].note_ids        # blast-radius/reversibility lens finds the option memos
+    assert by_id["forensic"].note_ids   # timeline/change lens finds the investigation note
 
 
 def test_render_contains_gate_and_options():
@@ -44,4 +45,4 @@ def test_render_contains_gate_and_options():
     text = render(card)
     assert "DECISION CARD" in text
     assert "HUMAN GATE" in text
-    assert "Taquería down the block" in text
+    assert "Roll back deploy 4821" in text

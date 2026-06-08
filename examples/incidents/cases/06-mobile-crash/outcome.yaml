@@ -1,0 +1,27 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run. Never ingested.
+#
+# Note: this case is deliberately the most arguable of the six — rolling back also stops new
+# crashes, and a forced update is defensible. The postmortem's call was the server-side default
+# (it also rescues already-cached null responses and needs no app-store release). We score only
+# that as correct, which is exactly why a Catfish "miss" here is honest, not a tuning failure.
+correct_option: server_default
+trap_option: rollback_backend
+
+options:
+  server_default:
+    keywords: ["non-null default", "default value", "default for", "populate", "server-side default", "send a default"]
+  rollback_backend:
+    keywords: ["roll back", "rollback", "revert 5102", "5102", "undo the deploy"]
+  force_app_update:
+    keywords: ["force update", "force-upgrade", "forced app update", "4.3.0", "app update"]
+  disable_loyalty:
+    keywords: ["feature flag", "flag off", "turn off the loyalty", "disable the loyalty"]
+
+what_happened: >
+  Deploy 5102 added a nullable field that old app builds couldn't decode. A server-side non-null
+  default stopped every crash at once — including already-cached responses — without a rollback or
+  an app-store release.
+why_baseline_misses: >
+  The crash spike correlated tightly with the deploy, so the reflex was rollback. But rollback
+  leaves already-cached null responses crashing and can't reach clients on the old build; treating
+  the deploy as the cause confuses the trigger with the fix.

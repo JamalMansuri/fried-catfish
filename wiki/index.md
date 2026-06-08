@@ -93,7 +93,7 @@ classDef good fill:#166534,stroke:#4ade80,stroke-width:1.5px,color:#f0fdf4;
 - [[catfish-retro]] — Decision ledger + retrospective capture. _(used by 2)_
 - [[catfish-tournament]] — The tournament engine: generate -> reflect -> rank -> evolve -> meta-review. _(used by 2)_
 - [[catfish-codemap]] — Logic-based Map of Content for a codebase, emitted as a Foam-compatible wiki. _(used by 1)_
-- [[catfish-fixtures]] — Recorded demo fixtures — "Where should we grab lunch today?" _(used by 1)_
+- [[catfish-fixtures]] — Recorded demo fixtures — incident case 01 (checkout p99 spike). _(used by 1)_
 - [[catfish-mcp_server]] — MCP stdio server (the [mcp] extra). Exposes the catfish tools to Claude Code / Codex. _(used by 1)_
 - [[catfish-mcp_tools]] — Tool implementations behind the MCP server. _(used by 1)_
 - [[catfish-memory]] — Markdown session memory + handoff notes. _(used by 1)_

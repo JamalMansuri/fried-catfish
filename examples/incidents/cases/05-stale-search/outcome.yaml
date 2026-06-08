@@ -1,0 +1,21 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run. Never ingested.
+correct_option: fix_clock
+trap_option: restart_indexer
+
+options:
+  fix_clock:
+    keywords: ["clock", "ntp", "skew", "watermark", "reset the watermark", "time drift"]
+  restart_indexer:
+    keywords: ["restart the indexer", "restart the job", "roll the worker", "kick the job", "hung job"]
+  reindex_all:
+    keywords: ["full reindex", "reindex", "from scratch", "from-scratch"]
+  scale_indexer:
+    keywords: ["more workers", "add workers", "more indexer", "scale the indexer"]
+
+what_happened: >
+  A worker's clock drifted +7 minutes after NTP failed, pushing the indexer watermark into the
+  future so every new document read as "already processed." Fixing the clock and resetting the
+  watermark cleared the backlog on the next run.
+why_baseline_misses: >
+  "Indexed 0 documents" looked like a dead job, so the reflex was to restart it. But the watermark
+  survives a restart — restarting changes nothing until the clock is fixed.

@@ -1,0 +1,22 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run.
+# This file lives OUTSIDE inbox/, so it is never ingested and the panel never sees it.
+correct_option: rollback
+trap_option: scale_db          # what the loudest signal points at (the deterministic baseline's pick)
+
+options:
+  rollback:
+    keywords: ["roll back", "rollback", "revert", "4821", "previous build"]
+  scale_db:
+    keywords: ["scale up", "scale the database", "larger", "read replica", "bigger instance", "more cpu", "headroom"]
+  add_index:
+    keywords: ["composite index", "add an index", "add a composite index", "index on"]
+  cache:
+    keywords: ["cache", "short-ttl", "memoize"]
+
+what_happened: >
+  Deploy 4821 introduced an N+1 query on the order-summary endpoint. Rolling it back restored p99
+  within four minutes. The 98% CPU was a symptom of the query explosion, not the cause.
+why_baseline_misses: >
+  CPU was the loudest metric on the dashboard, so the reflex was to give the database more CPU.
+  Scaling up would have burned an hour provisioning, and the N+1 would still have pegged the
+  bigger box. The fix was in the deploy timeline, not the metrics.

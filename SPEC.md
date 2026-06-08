@@ -50,7 +50,7 @@ Engineers and PMs who make recurring architecture or prioritization calls where 
 ### The hook
 
 ```
-catfish tournament examples/lunch/inbox "Where should we grab lunch today?" --config-dir examples/lunch --finalists 4
+catfish tournament examples/incidents/cases/01-checkout-latency/inbox "Checkout p99 is 5× normal and climbing — what do we do?" --config-dir examples/incidents --finalists 4
 ```
 
 One command. A pile of raw notes becomes an approve-ready decision card — problem, first principles, the surviving options side by side (`--finalists` sets how many; the demo shows four), a recommendation, and a pre-drafted Linear ticket tree waiting for your thumbs-up. No wall of text. **~40-60 LLM calls, under $0.50, under a minute** (live path; `CATFISH_DEMO=1` runs it free and instant from recorded fixtures). A recorded asciinema cast + GIF of this exact run is embedded at the top of the README — it is a hard MVP gate, not a nice-to-have.
@@ -138,7 +138,7 @@ catfish/
 │   └── linear.py          # gated parentId tree write-back (lazy httpx import)
 ├── personas/              # hand-written templates: skeptic.yaml / pm.yaml / security.yaml
 ├── templates/             # decision-card + session-handoff skeletons
-├── examples/lunch/        # specified seed corpus (see Decision Cards) + demo fixtures
+├── examples/incidents/    # six-case on-call backtest + case-01 demo fixtures
 └── extractors/            # OPTIONAL plugins: audio/ web/ chat/ (post-MVP, never imported by core)
 ```
 
@@ -643,47 +643,50 @@ linear:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DECISION CARD  card-2026-06-06-001            status: PROPOSED
+DECISION CARD  card-2026-06-07-001            status: PROPOSED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 PROBLEM
-  Four lunch spots within reach and forty minutes to eat.
-  Where do we go — and does it matter that we keep repeating
-  ourselves?
+  Checkout p99 is 5× normal and the database is pegged. Do
+  we feed the box more resources, or is the spike a deploy
+  we can undo?
 
 FIRST PRINCIPLES
-  1. Most of this week was chain food; another repeat spends
-     novelty we won't get back.
-  2. Fast food's real cost is processing and sameness, not
-     the dollar on the receipt.
-  3. A short walk to fresh, made-to-order food beats a drive-
-     thru when the time is close.
+  1. Latency was flat until twelve minutes after deploy 4821;
+     the timeline names a suspect the CPU graph hides.
+  2. Pegged CPU is downstream of an N+1 query explosion — a
+     symptom of the change, not the cause.
+  3. The reversible fix wins under pressure: a rollback costs
+     four minutes; scaling the database costs an hour.
 
 ┌────────────────────────┬────────────────────────┬────────────────────────┬────────────────────────┐
-│ [A] Taquería down the  │ [B] Chipotle           │ [C] McDonald's         │ [D] Taco Bell          │
-│ block                  │ score 0.13             │ score 0.13             │ score 0.13             │
-│ score 0.61  ★REC       │                        │                        │                        │
+│ [A] Roll back deploy   │ [B] Scale up the       │ [C] Add a composite    │ [D] Cache the order-   │
+│ 4821                   │ database               │ index                  │ summary response       │
+│ score 0.61  ★REC       │ score 0.13             │ score 0.13             │ score 0.13             │
 ├────────────────────────┼────────────────────────┼────────────────────────┼────────────────────────┤
 │ GOOD                   │ GOOD                   │ GOOD                   │ GOOD                   │
-│ Fresh, unprocessed,    │ Fresh-ish,             │ Cheapest and fastest;  │ Most food per dollar;  │
-│ biggest portion per    │ customizable, filling  │ back at the desk       │ the value box          │
-│ dollar — and a real    │ — a safe known         │ quickest.              │ overdelivers.          │
-│ break from the chains. │ quantity.              │                        │                        │
+│ Undoes the exact       │ Adds real CPU          │ Cuts per-query cost    │ Skips the database on  │
+│ change in the window;  │ headroom; the standard │ without reverting the  │ repeat reads; fewer    │
+│ reversible in one      │ play when a database   │ deploy; helps if the   │ queries, less CPU, the │
+│ command, p99 recovers  │ is genuinely           │ query is the floor.    │ deploy stays.          │
+│ in minutes.            │ saturated.             │                        │                        │
 ├────────────────────────┼────────────────────────┼────────────────────────┼────────────────────────┤
 │ NEUTRAL                │ NEUTRAL                │ NEUTRAL                │ NEUTRAL                │
-│ Cash is easier than    │ Mid-price; the line    │ Familiar, and the app  │ Drive-thru speed;      │
-│ card; a five-minute    │ gets long right at     │ deals soften the       │ quality varies by      │
-│ walk each way.         │ noon.                  │ price.                 │ location.              │
+│ Reverts everyone's     │ No code change and no  │ Needs the right        │ Adds a cache layer and │
+│ 4821 work until it can │ revert; buys time      │ columns; the index     │ a TTL to reason about. │
+│ reland behind the N+1  │ while the cause is     │ build adds load while  │                        │
+│ fix.                   │ found.                 │ it runs.               │                        │
 ├────────────────────────┼────────────────────────┼────────────────────────┼────────────────────────┤
 │ BAD                    │ BAD                    │ BAD                    │ BAD                    │
-│ A couple dollars more, │ Third time this week — │ Most processed; hungry │ Processed, and we      │
-│ and no app points.     │ palate fatigue is      │ again within the hour. │ already had it         │
-│                        │ real.                  │                        │ Thursday.              │
+│ Wrong if the spike     │ Treats a symptom: the  │ An N+1 is many cheap   │ Masks the N+1 and adds │
+│ isn't 4821 — but the   │ N+1 pegs the bigger    │ queries, not one slow  │ staleness; the next    │
+│ timeline makes that    │ box too, an hour       │ one — an index barely  │ uncached path pegs CPU │
+│ unlikely.              │ later.                 │ helps.                 │ again.                 │
 └────────────────────────┴────────────────────────┴────────────────────────┴────────────────────────┘
 
-RECOMMENDATION  →  A  Taquería down the block
-  Same money and time as a chain, but fresh, bigger, and the
-  one thing we haven't eaten this week.
+RECOMMENDATION  →  A  Roll back deploy 4821
+  Same minutes as any mitigation, but it undoes the actual
+  change and is the only fully reversible move under fire.
 
 ──────────────────────────────────────────────────────────────
 HUMAN GATE  [ thumbs-up required before any Linear write ]
@@ -691,7 +694,26 @@ HUMAN GATE  [ thumbs-up required before any Linear write ]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-> This card is the same scenario as `examples/lunch` (see build plan) — a reader can trace input → output. The `bt_score` shown is the real tournament output, not a weighted recompute.
+> This card is the same scenario as case 01 in `examples/incidents/` — a reader can trace input → output. The `bt_score` shown is the real tournament output, not a weighted recompute. The full six-case backtest (does the rollback-style winner match the postmortem?) is `examples/incidents/backtest.py`; see **Backtest** below.
+
+### Backtest — predictive validity
+
+Most decisions Catfish targets have no ground truth, so "is the stress-test worth it?" is normally
+unfalsifiable. Production incidents are the exception: the postmortem eventually settles the real
+fix. `examples/incidents/` is a backtest over six past incidents, each authored so the loud,
+obvious read is a trap (loudest-metric, recency bias, blame-the-vendor, correlation≠causation, …).
+
+`backtest.py` runs each case **blind** — the answer key in `outcome.yaml` lives outside `inbox/`
+and is never ingested — then scores the card's recommendation against the held-out outcome and
+against a deterministic "loudest-signal" baseline (the remediation whose memo reads most like the
+alert, computed with no LLM). The baseline scores 0/6 by construction; the gap to Catfish's column
+is the measurable value of adversarial stress-testing where truth is knowable.
+
+It is **live-only on purpose.** A backtest is only honest if the panel never sees the answer, and
+the offline `CATFISH_DEMO` replay only knows case 01 — so the real scoreboard needs a live judge.
+The cases are fixed: we record whatever a run gives (a mix is more credible than a sweep) and never
+re-tune until Catfish wins. A Bradley-Terry rank is still persuasiveness among LLM judges, not
+truth; the backtest only measures how often that proxy lands on the postmortem's answer.
 
 ### Human gate
 
@@ -894,7 +916,7 @@ Credentials must never reach session files, cards, the spine, or tournament stat
 
 ### MVP — "download and it works"
 
-**Cut line:** a sharp engineer runs `pip install catfish`, runs the killer demo against `examples/lunch`, and sees a printed decision card. `CATFISH_DEMO=1` makes that free, instant, and deterministic on first download; the live path needs one env var or host sampling. Linear is stubbed (dry-run log unless `[linear]` installed + `CATFISH_LINEAR_TOKEN` set); the gate still fires.
+**Cut line:** a sharp engineer runs `pip install catfish`, runs the killer demo against `examples/incidents`, and sees a printed decision card. `CATFISH_DEMO=1` makes that free, instant, and deterministic on first download; the live path needs one env var or host sampling. Linear is stubbed (dry-run log unless `[linear]` installed + `CATFISH_LINEAR_TOKEN` set); the gate still fires.
 
 | # | Deliverable | Done when |
 |---|---|---|
@@ -907,7 +929,7 @@ Credentials must never reach session files, cards, the spine, or tournament stat
 | 7 | `memory.py` | SESSION_INDEX + sessions/*.md, atomic append, stale-session timeout |
 | 8 | `server.py` | MCP stdio + CLI dispatcher; **MCP tool catalog** registered |
 | 9 | Inference layer | `LLMClient` (MCP-sampling + direct-API), timeout/retry, helpful no-key message |
-| 10 | `examples/lunch` + demo | 5-file seed corpus matching the rendered card; `FakeLLMClient` fixtures; **asciinema + GIF** recorded |
+| 10 | `examples/incidents` + demo | case-01 seed corpus matching the rendered card; `FakeLLM` fixtures; six-case live backtest; **asciinema + GIF** recorded |
 | 11 | Tests | BT-MLE, position-swap symmetry, golden card, schema validation |
 | 12 | Host wiring | `plugin.json` + hooks (Claude Code); `catfish install --codex` + `AGENTS.md` (Codex) |
 | 13 | Security | per-stage SOURCE delimiters, env-only secrets, adversarial example + test |
@@ -924,7 +946,7 @@ Credentials must never reach session files, cards, the spine, or tournament stat
 | `catfish_render_card` | render card to terminal/markdown | no |
 | `catfish_write_linear` | write the parentId tree | **yes** |
 
-**`examples/lunch` (specified):** five short realistic files that deterministically motivate the lunch card — a memo per option (Chipotle, McDonald's, Taco Bell, the taquería) plus `last_week.md`, a meal-history note showing chain food four of the last five days. The card example and the seed corpus are the same traceable scenario.
+**`examples/incidents` (specified):** six self-contained on-call cases, each a small corpus — `alert.md` (the loud signal), `investigation.md` (the careful timeline read), and one `option_*.md` per candidate remediation — plus a held-out `outcome.yaml` (the postmortem's real fix, never ingested). Case 01 deterministically motivates the rendered card; the card example and that seed corpus are the same traceable scenario. The other five cases extend it into a blind backtest (`backtest.py`).
 
 ### v1 — full gate + Linear
 
@@ -944,8 +966,8 @@ Entry-points plugin host + first external extractor (`extractors/web` Trafilatur
 
 **Rejected — three reasons, each verified against the live code:**
 1. **The token premise is already satisfied.** Personas never load full document bodies — they read 24-word summaries only (`personas.py`); bodies are written to disk and never enter a prompt. The "load-on-demand" lever the lexicon pulls is *already pulled*. A corpus-wide glossary injected into prompts is strictly **net-negative.**
-2. **It's redundant.** `_summarize()` is first-24-words **verbatim truncation, not paraphrase** — so `Taco Bell`, `$5`, `twice this week`, etc. are *already in the spine summary*. On the demo corpus every "recoverable" term is already present. The premise "summaries drop exact terms" is false here.
-3. **It can't hold the load-bearing part.** The decision-relevant fact is usually a **relation** ("fresh *beats* fast when the time is close"), which a flat term list structurally cannot encode; and deterministic person-extraction silently missed a lowercase stakeholder. A list of surfaces is not a lossless floor.
+2. **It's redundant.** `_summarize()` is first-24-words **verbatim truncation, not paraphrase** — so `deploy 4821`, `98% CPU`, `N+1`, etc. are *already in the spine summary*. On the demo corpus every "recoverable" term is already present. The premise "summaries drop exact terms" is false here.
+3. **It can't hold the load-bearing part.** The decision-relevant fact is usually a **relation** ("the spike *began after* the deploy, so CPU is a symptom"), which a flat term list structurally cannot encode; and deterministic entity-extraction silently missed a lowercase identifier. A list of surfaces is not a lossless floor.
 
 **Salvageable, if a real corpus ever justifies it:**
 - **One line, not a new file:** if a load-bearing ID/date ever falls past word 24 of sentence 1, widen `_summarize` to also keep any sentence matching the ID/date/`Severity:` regex. Puts lossless tokens in the field already loaded everywhere.

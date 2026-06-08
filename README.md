@@ -8,7 +8,9 @@ Ask an AI assistant for a plan and you get one confident answer, or five of them
 - I read the AI Co-Scientist paper and it put names to things I was already doing: personas arguing it out, multiple rounds, Maps of Content built through different lenses. But the paper shipped no tool (it's a biomedical system, no repo), so I built one for the everyday product and engineering calls the rest of us make.
 - I also think the harness, how you actually wire the model up, is starting to matter as much as the frontier model. This is me betting on that.
 
-<img src="demo/catfish.gif" width="640" alt="A folder of options runs through a tournament (generate, critique, battle, Bradley-Terry) and lands on one human-gated decision card">
+<img src="demo/catfish.gif" width="640" alt="An on-call incident — checkout p99 spiking, the database pegged — runs through the tournament (generate, critique, battle, Bradley-Terry) and lands on one human-gated call: roll back the deploy, not scale the database">
+
+<sub>Checkout latency is 5× and every metric blames the database. The tournament reads the timeline instead, and lands on rolling back the deploy — gated on your sign-off. Offline, no key; the quickstart below replays it, and the six-case [backtest](examples/incidents/) is where it's scored.</sub>
 
 ## How it works
 
@@ -34,24 +36,43 @@ The ranker is Bradley-Terry, not Elo. Pairwise LLM judgments go non-transitive (
 git clone https://github.com/JamalMansuri/fried-catfish && cd fried-catfish
 pip install -e .
 
-# Offline, no API key. Replays a sample "where should we grab lunch?" tournament:
-CATFISH_DEMO=1 catfish tournament examples/lunch/inbox \
-  "Where should we grab lunch today?" --config-dir examples/lunch --finalists 4
+# Offline, no API key. Replays a sample on-call incident tournament:
+CATFISH_DEMO=1 catfish tournament examples/incidents/cases/01-checkout-latency/inbox \
+  "$(cat examples/incidents/cases/01-checkout-latency/question.txt)" \
+  --config-dir examples/incidents --finalists 4
 ```
 
 For a live run on your own folder, drop `CATFISH_DEMO=1` and set `CATFISH_LLM_API_KEY`.
+
+## Does it actually work?
+
+Most decisions Catfish is built for have no ground truth — but production incidents do: the
+postmortem eventually settles the real fix. So [`examples/incidents/`](examples/incidents/) is a
+**backtest** over six past on-call incidents, each built so the loud, obvious read is a trap
+(loudest-metric, recency bias, blame-the-vendor, correlation≠causation…). It runs the tournament
+**blind** — the answer key never enters the corpus — then scores the pick against the held-out
+outcome and a deterministic "loudest-signal" baseline:
+
+```bash
+CATFISH_LLM_API_KEY=... python examples/incidents/backtest.py
+```
+
+That's the one thing a toy demo can't show: on decisions where truth is knowable, does
+stress-testing beat the confident first answer? The baseline scores **0/6 by construction** —
+every case's obvious answer is wrong — so the gap to Catfish's column is the whole point. Recorded
+scoreboard: [RESULTS.md](examples/incidents/RESULTS.md).
 
 ## Learn more
 
 - [SPEC.md](SPEC.md) covers the architecture, the tournament engine, and how it's built.
 - [ADAPTING.md](ADAPTING.md) shows how to point it at your own sources (one tags file, one persona set).
-- [examples/lunch/](examples/lunch/) is the worked example, start to finish.
+- [examples/incidents/](examples/incidents/) is the worked example + the backtest, start to finish.
 - [AGENTS.md](AGENTS.md) is for driving or developing it from an agent.
 
 ## Honest limits
 
-- There's no ground truth in this kind of work. You get stress-tested options, not verified answers. A Bradley-Terry score measures persuasiveness among LLM judges, which isn't the same as being right, so you stay the validator.
-- The offline demo always replays the same canned lunch scenario. A real card on your own data needs a live key.
+- There's no ground truth in most of this work. You get stress-tested options, not verified answers. A Bradley-Terry score measures persuasiveness among LLM judges, which isn't the same as being right, so you stay the validator. (The backtest above is the one place truth is knowable — and it's honest about misses.)
+- The offline demo always replays the same canned incident (case 01). A real card on your own data — and the full six-case backtest — needs a live key.
 - Judge bias gets reduced, not solved. Position-swapping and length-blind judging help, but no bias-free LLM judge exists.
 
 The rest of the caveats are in [SPEC.md](SPEC.md), under "Honest limits."

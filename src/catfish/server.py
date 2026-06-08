@@ -38,7 +38,7 @@ def _friendly_llm():
         return resolve_llm()
     except LLMError as e:
         print(f"\n✗ {e}\n", file=sys.stderr)
-        print("  Quick start (free, offline):  CATFISH_DEMO=1 catfish tournament examples/lunch/inbox \"<question>\" --config-dir examples/lunch\n",
+        print("  Quick start (free, offline):  CATFISH_DEMO=1 catfish tournament examples/incidents/cases/01-checkout-latency/inbox \"<question>\" --config-dir examples/incidents\n",
               file=sys.stderr)
         raise SystemExit(2)
 
@@ -234,7 +234,7 @@ def build_parser() -> argparse.ArgumentParser:
     t.add_argument("--critics", help="custom critic panel, e.g. skeptic:grumpy,security:paranoid,qa:bad_mood")
     t.add_argument("--config-dir", dest="config_dir",
                    help="folder holding tags.yaml + personas/ to retarget the run to a domain "
-                        "(default: config/ + personas/). See ADAPTING.md / examples/lunch.")
+                        "(default: config/ + personas/). See ADAPTING.md / examples/incidents.")
     t.add_argument("--decide", help="auto-accept option (A/B/C) — skips the manual gate")
     t.add_argument("--by", help="decider name (with --decide)")
     t.add_argument("--linear", action="store_true", help="actually write Linear (default: dry-run)")

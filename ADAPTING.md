@@ -5,8 +5,8 @@ domain-agnostic. **All domain coupling lives in config files, never in `src/`.**
 your sources — finance, legal, ops, hiring, anything — means editing two files and pointing the
 CLI at them. If you find yourself editing Python to change the domain, stop: you've missed a seam.
 
-There is a complete worked example in [`examples/lunch/`](examples/lunch/) — read it alongside
-this guide; every step below has a concrete counterpart there.
+There is a complete worked example in [`examples/incidents/`](examples/incidents/) — read it
+alongside this guide; every step below has a concrete counterpart there.
 
 ---
 
@@ -17,11 +17,11 @@ A flat `keyword: tag` map. At ingest time, any note whose text contains a (lower
 the corresponding tag. Tags are how persona lenses find the notes that concern them.
 
 ```yaml
-# default (software/eng)            # retargeted (lunch)
-auth: auth                          fresh: health
-billing: billing            ──►     cheap: cost
-migrat: migration                   twice: variety
-launch: launch                      walk: convenience
+# default (software/eng)            # retargeted (incidents)
+auth: auth                          cpu: symptom
+billing: billing            ──►     deploy: change
+migrat: migration                   minutes: timeline
+launch: launch                      roll back: reversibility
 ```
 
 Keep the keys as substrings (`migrat` catches *migrate/migration/migrating*; `cheap` catches
@@ -37,12 +37,12 @@ so the panel reflects who would actually argue about *your* decisions.
 
 ```yaml
 id: skeptic
-role: First-principles contrarian
-goal: Question the whole frame — why a chain at all — and whether we're just repeating last week.
-utility_fn: unexamined defaults and autopilot choices surfaced
+role: Correlation-is-not-causation skeptic
+goal: Is the loud metric the cause or a symptom — and is the third party really at fault, or just where the error surfaced?
+utility_fn: first plausible narratives pressure-tested before a culprit is named
 mood: contrarian          # optional — a tone/severity dial, not an accuracy boost
 filter:
-  tags_any: [variety, value, health, convenience]   # <- must come from config/tags.yaml
+  tags_any: [external, symptom, change]             # <- must come from config/tags.yaml
 ```
 
 Optional: a persona can `knowledge:` a glob of your own docs (e.g. `knowledge: [docs/sop.md]`), read
@@ -57,13 +57,13 @@ needs a fundamentally different generation mandate (rare). Skip this step by def
 ### 4. `examples/<your-domain>/` — your sources
 Drop your real notes / emails / transcripts / exported docs into a folder and point the CLI at it.
 You don't have to put them under `examples/` — any folder works. Use
-[`examples/lunch/`](examples/lunch/) as the template for a self-contained, shippable example.
+[`examples/incidents/`](examples/incidents/) as the template for a self-contained, shippable example.
 
 ### 5. Environment — runtime wiring (no domain coupling)
 `CATFISH_LLM_API_KEY` (+ optional `CATFISH_MODEL`) for live runs; `CATFISH_LINEAR_TOKEN` /
 `CATFISH_LINEAR_TEAM` if you want the gated Linear write. `CATFISH_DEMO=1` runs offline from canned
-fixtures (note: the fixtures replay the lunch scenario, so the offline *card content* is always the
-lunch card regardless of `--config-dir` — the retarget proves out in ingestion, tagging, and the
+fixtures (note: the fixtures replay incident case 01, so the offline *card content* is always the
+case-01 card regardless of `--config-dir` — the retarget proves out in ingestion, tagging, and the
 persona panel; a real card on your data needs a live key).
 
 ---

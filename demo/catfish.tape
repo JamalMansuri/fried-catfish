@@ -22,20 +22,20 @@ Type "clear"
 Enter
 Show
 
-# Cold open — an everyday decision, and we've been on autopilot all week.
-Type "# Lunch again. Four spots, forty minutes — and it's been chain food all week."
+# Cold open — checkout is on fire and every metric points at the database.
+Type "# Checkout p99 is 5x and the DB is pegged. Scale the box... or is it the deploy?"
 Sleep 1000ms
 Enter
 Sleep 1000ms
 
-# The messy context: a memo per option + last week's meal history the tournament will reap.
-Type "ls examples/lunch/inbox/"
+# The messy context: the loud alert, the careful timeline read, and a memo per remediation.
+Type "ls examples/incidents/cases/01-checkout-latency/inbox/"
 Sleep 400ms
 Enter
 Sleep 2000ms
 
-# One ordinary question -> a real tournament -> one focused, human-gated call.
-Type 'catfish tournament examples/lunch/inbox "Where should we grab lunch today?" --config-dir examples/lunch --finalists 4 --decide A --by "you"'
+# One on-call question -> a real tournament -> one focused, human-gated call.
+Type 'catfish tournament examples/incidents/cases/01-checkout-latency/inbox "Checkout p99 is 5x normal and climbing - what do we do?" --config-dir examples/incidents --finalists 4 --decide A --by "you"'
 Sleep 700ms
 Enter
 

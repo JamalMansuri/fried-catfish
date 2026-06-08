@@ -1,0 +1,1 @@
+The API has been throwing intermittent 500s since this afternoon. What do we change to stop them?

@@ -1,0 +1,20 @@
+# HELD-OUT GROUND TRUTH — read only by backtest.py to score a run. Never ingested.
+correct_option: add_eviction
+trap_option: disable_flag
+
+options:
+  add_eviction:
+    keywords: ["eviction", "ttl", "bound the cache", "max size", "cap the cache", "evict"]
+  disable_flag:
+    keywords: ["feature flag", "turn off", "flip the flag", "disable the flag", "roll back the flag"]
+  bump_memory:
+    keywords: ["memory limit", "raise the pod", "more room", "raise the limit"]
+  restart_cron:
+    keywords: ["rolling restart", "cron", "roll the pods", "restart every"]
+
+what_happened: >
+  A three-week-old, unbounded response cache crossed the memory ceiling this week. Adding eviction
+  and a TTL made RSS plateau. The feature flag rollout was a coincidence in timing.
+why_baseline_misses: >
+  Recency bias: the newest change (yesterday's flag) drew the blame, but the memory slope was a
+  straight line through the rollout and predated it by weeks.
